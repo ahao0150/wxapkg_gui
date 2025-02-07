@@ -57,9 +57,14 @@ pip install pycryptodome requests
 - Claude (Anthropic)
 - Deepseek
 
+## 📷软件截图
+
+![image](./img/示例.png)
+
 ## 🔗 参考项目
 
 - [wux1an/wxapkg](https://github.com/wux1an/wxapkg) - 原始的命令行工具版本
+
 - [BlackTrace/pc_wxapkg_decrypt](https://github.com/BlackTrace/pc_wxapkg_decrypt) - 小程序解密参考
 - [Integ/wxapkg](https://gist.github.com/Integ/bcac5c21de5ea35b63b3db2c725f07ad) - 小程序解包参考
 
