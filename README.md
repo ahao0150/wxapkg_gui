@@ -48,7 +48,7 @@ pip install pycryptodome requests
 
 ## 🔨 开发者
 
-- [cursor](https://github.com/cursor)
+- [cursor](https://www.cursor.com/)
 
 ## 🤖 开发支持
 
@@ -57,7 +57,7 @@ pip install pycryptodome requests
 - Claude (Anthropic)
 - Deepseek
 
-## 📷软件截图
+## 📷 软件截图
 
 ![image](./img/示例.png)
 
