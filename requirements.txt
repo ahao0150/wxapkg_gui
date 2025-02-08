@@ -5,3 +5,9 @@ pycryptodome>=3.19.1
 requests>=2.31.0
 
 # GUI相关 - tkinter通常是Python标准库的一部分，不需要额外安装 
+
+# JS压缩
+jsmin>=3.0.1
+
+# 图片处理
+Pillow>=10.0.0 

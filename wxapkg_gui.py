@@ -70,6 +70,27 @@ class WxapkgUnpacker:
         self.browse_btn = ttk.Button(output_frame, text="浏览", command=self.browse_output)
         self.browse_btn.pack(side=tk.RIGHT)
         
+        # 在输出目录框架下添加压缩选项
+        compress_frame = ttk.Frame(detail_frame)
+        compress_frame.pack(fill=tk.X, pady=(0, 5))
+        
+        self.compress_var = tk.BooleanVar(value=False)
+        self.compress_checkbox = ttk.Checkbutton(
+            compress_frame, 
+            text="压缩JS/JSON文件", 
+            variable=self.compress_var
+        )
+        self.compress_checkbox.pack(side=tk.LEFT)
+        
+        # 在压缩选项框架中添加图片压缩选项
+        self.compress_png_var = tk.BooleanVar(value=False)
+        self.compress_png_checkbox = ttk.Checkbutton(
+            compress_frame, 
+            text="压缩PNG图片", 
+            variable=self.compress_png_var
+        )
+        self.compress_png_checkbox.pack(side=tk.LEFT, padx=(10, 0))
+        
         self.detail_text = tk.Text(detail_frame, wrap=tk.WORD, height=15)
         self.detail_text.pack(fill=tk.BOTH, expand=True)
         
@@ -393,19 +414,15 @@ class WxapkgUnpacker:
                     
                     # 规范化文件路径
                     file_path = os.path.join(output_dir, name.lstrip('/'))
-                    # 确保目录存在
-                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
                     
-                    # 写入文件
-                    with open(file_path, 'wb') as f:
-                        f.write(file_data)
-                    
-                    print(f"已保存文件: {file_path}")
-                    total += 1
-                    self.update_progress(total/file_count)
-                    
+                    # 使用新的保存函数
+                    if self.save_file_content(file_path, file_data):
+                        print(f"已保存文件: {file_path}")
+                        total += 1
+                        self.update_progress(total/file_count)
+            
                 except Exception as e:
-                    print(f"保存文件 {name} 时出错: {str(e)}")
+                    print(f"处理文件 {name} 时出错: {str(e)}")
                     continue
             
             return total
@@ -480,6 +497,97 @@ class WxapkgUnpacker:
                 self.progress['value'] = 0
         
         threading.Thread(target=do_unpack).start()
+
+    def minify_js(self, content):
+        """压缩JS代码"""
+        try:
+            import jsmin
+            return jsmin.jsmin(content)
+        except ImportError:
+            print("jsmin模块未安装，跳过JS压缩")
+            return content
+
+    def minify_json(self, content):
+        """压缩JSON内容"""
+        try:
+            data = json.loads(content)
+            return json.dumps(data, separators=(',', ':'))
+        except:
+            return content
+
+    def minify_png(self, content):
+        """压缩PNG图片"""
+        try:
+            from PIL import Image
+            import io
+            
+            # 将二进制内容转换为图片对象
+            input_buffer = io.BytesIO(content)
+            image = Image.open(input_buffer)
+            
+            # 如果不是PNG格式，直接返回原内容
+            if image.format != 'PNG':
+                return content
+            
+            # 获取原始大小
+            original_size = len(content)
+            
+            # 创建输出缓冲区
+            output = io.BytesIO()
+            
+            # 保持原始模式，使用优化参数
+            image.save(output, 
+                      format='PNG',
+                      optimize=True,
+                      quality=85,  # 质量参数
+                      compress_level=9)  # 最大压缩级别
+            
+            # 获取压缩后的内容
+            compressed_content = output.getvalue()
+            compressed_size = len(compressed_content)
+            
+            # 如果压缩后反而变大，则返回原始内容
+            if compressed_size >= original_size:
+                print(f"PNG压缩后变大 ({original_size} -> {compressed_size})，保持原始大小")
+                return content
+            
+            print(f"PNG压缩成功: {original_size} -> {compressed_size} bytes ({(compressed_size/original_size*100):.1f}%)")
+            return compressed_content
+            
+        except Exception as e:
+            print(f"PNG压缩失败: {str(e)}")
+            return content
+
+    def should_compress(self, filename):
+        """判断文件是否需要压缩"""
+        if filename.endswith(('.js', '.json')):
+            return self.compress_var.get()
+        elif filename.endswith('.png'):
+            return self.compress_png_var.get()
+        return False
+
+    def save_file_content(self, file_path, content):
+        """保存文件内容，根据需要进行压缩"""
+        try:
+            if self.should_compress(file_path):
+                if file_path.endswith('.js'):
+                    content = self.minify_js(content.decode('utf-8')).encode('utf-8')
+                elif file_path.endswith('.json'):
+                    content = self.minify_json(content.decode('utf-8')).encode('utf-8')
+                elif file_path.endswith('.png'):
+                    content = self.minify_png(content)
+            
+            # 确保目录存在
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            
+            # 写入文件
+            with open(file_path, 'wb') as f:
+                f.write(content)
+            
+            return True
+        except Exception as e:
+            print(f"保存文件 {file_path} 时出错: {str(e)}")
+            return False
 
 if __name__ == '__main__':
     root = tk.Tk()
