@@ -2,11 +2,12 @@
 __pycache__/
 *.py[cod]
 
-# PyInstaller 产物
+# PyInstaller 打包产物
 build/
 dist/
 *.spec
 
-# 运行期状态文件
+# 运行期状态文件（本机私有，不入库）
 .last_scan_dir
 unpack/
+wxid.json
