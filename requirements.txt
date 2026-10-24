@@ -1,13 +1,13 @@
-# 加密解密相关
+﻿# 加密解密相关（V1MMWX 包解密必需）
 pycryptodome>=3.19.1
 
-# 网络请求
+# 网络请求（可选的联网查询小程序名称）
 requests>=2.31.0
 
-# GUI相关 - tkinter通常是Python标准库的一部分，不需要额外安装 
-
-# JS压缩
+# JS 压缩（可选的 --compress）
 jsmin>=3.0.1
 
-# 图片处理
-Pillow>=10.0.0 
+# PNG 压缩（可选的 --compress-png）
+Pillow>=10.0.0
+
+# GUI 相关：tkinter 是 Python 标准库，不需要额外安装

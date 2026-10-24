@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# PyInstaller 产物
+build/
+dist/
+*.spec
+
+# 运行期状态文件
+.last_scan_dir
+unpack/
